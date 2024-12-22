@@ -44,6 +44,7 @@ cache = {}
 def get_number(s, iterations):
     secret = s
     data = [(int(str(secret)[-1]), "N/A")]  # (secret_number_digit, difference)
+    saved = set()
     for i in range(iterations):
         multiplied = secret * 64
         secret = mix(secret, multiplied)
@@ -65,13 +66,13 @@ def get_number(s, iterations):
             for t in temp:
                 ls.append(t[1])
             window = tuple(ls)
+            if window in saved:
+                continue
+            saved.add(window)
             if window not in cache:
                 cache[window] = last_digit
             else:
                 cache[window] += last_digit
-
-            # if window == (-2, 2, -1, -1):
-            #     print(s)
 
     return secret
 
@@ -83,6 +84,4 @@ result = 0
 for key, val in cache.items():
     if val > result:
         result = val
-    # if val == 30:
-    #     print(key)
 print(result)
