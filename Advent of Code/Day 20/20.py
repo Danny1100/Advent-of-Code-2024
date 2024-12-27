@@ -1,54 +1,56 @@
-from collections import deque
-
 grid = []
 directions = {
-    'N': (-1, 0),    # North: move up (decrease y)
-    'S': (1, 0),     # South: move down (increase y)
-    'E': (0, 1),     # East: move right (increase x)
-    'W': (0, -1),    # West: move left (decrease x)
+    "N": (-1, 0),  # North: move up (decrease y)
+    "S": (1, 0),  # South: move down (increase y)
+    "E": (0, 1),  # East: move right (increase x)
+    "W": (0, -1),  # West: move left (decrease x)
 }
 with open("Input.txt", "r") as file:
     for line in file:
         grid.append(list(line.strip()))
 
-for row in grid: print(row)
+
+def print_grid():
+    for row in grid:
+        print(row)
+
+
 rows, cols = len(grid), len(grid[0])
 
-# Problem 1
-def bfs(si, sj):
-    result = float("inf")
-    visited = set((si, sj))
-    q = deque([[(si, sj), 0]])
-    while q:
-        coords, score = q.popleft()
-        i, j = coords
-        if grid[i][j] == 'E':
-            return score
-
-        for dx, dy in directions.values():
-            nx, ny = i + dx, j + dy
-            if grid[nx][ny] != '#' and (nx, ny) not in visited:
-                visited.add((nx, ny))
-                q.append([(nx, ny), score+1])
-
-    return result
-
 si, sj = 0, 0
-original = 0
 for i in range(rows):
     for j in range(cols):
-        if grid[i][j] == 'S':
+        if grid[i][j] == "S":
             si, sj = i, j
-            original = bfs(si, sj)
-            print(original)
 
+path = [(si, sj)]
+visited = set((si, sj))
+x, y = si, sj
+while grid[x][y] != "E":
+    for direction, coords in directions.items():
+        nx, ny = x + coords[0], y + coords[1]
+        if (grid[nx][ny] == "." or grid[nx][ny] == "E") and (nx, ny) not in visited:
+            x, y = nx, ny
+            visited.add((nx, ny))
+            path.append((nx, ny))
+            break
+
+# Problem 1 and 2
+cache = {}
 result = 0
-for i in range(rows):
-    for j in range(cols):
-        if i != 0 and i != rows-1 and j != 0 and j != rows-1 and grid[i][j] == '#':
-            grid[i][j] = '.'
-            res = bfs(si, sj)
-            if original - res >= 100:
+for i in range(len(path)):
+    for j in range(i + 2, len(path)):
+        c1, c2 = path[i], path[j]
+        distance = abs(c2[0] - c1[0]) + abs(c2[1] - c1[1])
+        if distance <= 20:
+            saved = j - i - distance
+            if saved not in cache:
+                cache[saved] = 1
+            else:
+                cache[saved] += 1
+
+            if saved >= 100:
                 result += 1
-            grid[i][j] = '#'
+# for key in sorted(cache.keys()):
+#     print(key, cache[key])
 print(result)
