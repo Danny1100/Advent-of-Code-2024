@@ -1,3 +1,4 @@
+import networkx as nx
 from collections import deque
 
 
@@ -59,27 +60,86 @@ with open("Input.txt") as file:
 
 
 # Problem 2
-def dfs(node, visited, potential):
-    # returns the greatest size fully connected graph including this node
-    if node in visited or len(potential) == 0:
-        return 0
-
-    visited.add(node)
-    potential.add(node)
-
-    for neighbor in node.neighbors:
-        potential.add(neighbor)
-
-    for neighbor in node.neighbors:
-        dfs(neighbor)
-
-    return
-
-
-result = 0
+new_cache = {}
 for name, node in cache.items():
-    res = dfs(node, set(), set())
-    result = max(res, result)
-    print(res)
-print()
-print(result)
+    new_cache[name] = set(map(lambda x: x.name, node.neighbors))
+G = nx.Graph(new_cache)
+maximal_cliques = list(
+    nx.find_cliques(G)
+)  # E.g. [['kh', 'ta'], ['kh', 'ub', 'qp'], ...]
+largest_clique = max(maximal_cliques, key=len)  # E.g. ['ta', 'co', 'ka', 'de']
+print(",".join(sorted(largest_clique)))
+print(len(largest_clique))
+
+# def dfs(current, subgraph, potential):
+#     new_subgraph = copy.deepcopy(subgraph)
+#     new_potential = copy.deepcopy(potential)
+#     if current:
+#         if current in new_subgraph:
+#             return new_subgraph
+#         new_potential.remove(current)
+#         new_subgraph.add(current)
+#         neighbor_names = set(map(lambda x: x.name, cache[current].neighbors))
+#         new_potential = neighbor_names & potential
+
+#         if len(potential) == 0:
+#             return new_subgraph
+
+#     result = new_subgraph
+#     for node_name in new_potential:
+#         res = dfs(node_name, new_subgraph, new_potential)
+#         # print(res)
+
+#         if len(res) > len(result):
+#             result = res
+
+#     return result
+
+
+# visited = set()
+# final_result = set()
+# for name, node in cache.items():
+#     if name in visited:
+#         continue
+
+#     subgraph = set({name})
+#     potential = set()
+#     for neighbor in node.neighbors:
+#         potential.add(neighbor.name)
+#     res = dfs(None, subgraph, potential)
+#     for n in res:
+#         visited.add(n)
+#     print(name, res)
+#     if len(res) > len(final_result):
+#         final_result = res
+# print(",".join(sorted(list(final_result))))
+
+
+# def bron_kerbosch(R, P, X, graph):
+#     if not P and not X:
+#         yield R  # R is a maximal clique
+
+#     while P:
+#         # Pivoting: Choose a pivot with max neighbors in P
+#         pivot = max(P | X, key=lambda u: len(graph[u] & P), default=None)
+
+#         # Explore vertices not connected to the pivot
+#         for v in P - graph[pivot]:
+#             # Recursive call with v added to R
+#             yield from bron_kerbosch(R | {v}, P & graph[v], X & graph[v], graph)
+
+#             # Remove v from P and add to X (prune further)
+#             P.remove(v)
+#             X.add(v)
+
+
+# def find_maximum_clique(graph):
+#     cliques = list(bron_kerbosch(set(), set(graph), set(), graph))
+#     return max(cliques, key=len)
+
+
+# new_cache = {}
+# for name, node in cache.items():
+#     new_cache[name] = set(map(lambda x: x.name, node.neighbors))
+# # print(new_cache)
+# print(find_maximum_clique(new_cache))
