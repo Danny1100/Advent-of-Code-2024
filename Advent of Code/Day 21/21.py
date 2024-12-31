@@ -152,15 +152,13 @@ def chainRobot(letter, prev, end, seqstart):
         if (letter, prev, i, start) in mem:
             return mem[(letter, prev, i, start)]
         mincount = float("inf")
-        if i <= 1:
-            print(i, start, prev)
         if start:
             prev = "A"
         for move in dirMoves[prev][letter]:
             count = 0
             cur = prev
             begin = True
-            for each in move:
+            for idx, each in enumerate(move):
                 count += dfs(each, cur, i + 1, begin)
                 begin = False
                 cur = each
